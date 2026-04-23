@@ -177,6 +177,8 @@ dim(sce_big)
 num_cells = seq(10000, 201000, by = 10000)
 
 time_vec = vector(mode = 'numeric', length = length(num_cells))
+memory_vec = vector(mode = 'numeric', length = length(num_cells))
+
 
 for(i in 1:length(num_cells)){
   sce_subset <- sce_big[, 1:num_cells[i]]
@@ -189,20 +191,37 @@ for(i in 1:length(num_cells)){
   pseudobulk_counts = assay(sce_subset, 'counts') %*% cell_annot_matrix
   time_vec[i] = as.numeric(Sys.time() - start, units = "secs")
 
+  bytes <- object.size(cell_annot_matrix)
+  mb <- as.numeric(bytes) / 1024^2
+  memory_vec[i] = mb
+
   #Free up memory
   rm(pseudobulk_counts, cell_annot_matrix, sce_subset)
   gc()
   print(i)
 }
 
+par(pty = 's')
+plot(num_cells, time_vec, type = 'b', xlab = 'Number of Cells', ylab = 'Time (seconds)', 
+main = 'Time to pseudobulk: 37 clusters')
 
-plot(num_cells, time_vec, type = 'b', xlab = 'Number of Cells', ylab = 'Time (seconds)', main = 'Time taken for pseudobulking with increasing number of cells')
+par(pty = 's')
+plot(num_cells, memory_vec, type = 'b', xlab = 'Number of Cells', ylab = 'Memory (Mb)', 
+main = 'Memory of additional annotation one-hot matrix')
 
 
-pdf(file.path(plot_path, 'pseudobulk_time_plot.pdf'), width = 6, height = 4)
-plot(num_cells, time_vec, type = 'b', xlab = 'Number of Cells', ylab = 'Time (seconds)', main = 'Time taken for pseudobulking with increasing number of cells')
+
+pdf(file.path(plot_path, 'pseudobulk_time_plot.pdf'), width = 10, height = 6)
+par(pty = 's')
+plot(num_cells, time_vec, type = 'b', xlab = 'Number of Cells', ylab = 'Time (seconds)', 
+main = 'Time to pseudobulk: 37 clusters')
 dev.off()
 
+pdf(file.path(plot_path, 'pseudobulk_memory_plot.pdf'), width = 10, height = 6)
+par(pty = 's')
+plot(num_cells, memory_vec, type = 'b', xlab = 'Number of Cells', ylab = 'Memory (Mb)', 
+main = 'Memory of additional annotation one-hot matrix')
+dev.off()
 
 
 
