@@ -72,6 +72,7 @@ table(multiome_sce$refined_cluster_ann)
 #           1123             932 
 
 #Get the one-hot encoding of the cluster annotations for the multiome data, in this case the midcluster metadata column
+#Used Claude Opus for this line, memory efficient and fast way to get a one-hot matrix
 cell_annot_matrix <- Matrix::sparse.model.matrix(~ 0 + refined_mid_cluster, data = colData(multiome_sce))
 
 dim(cell_annot_matrix)
@@ -90,7 +91,7 @@ head(cell_annot_matrix)
 #Drops the 'mid_cluster' prefix on the column names
 colnames(cell_annot_matrix) <- gsub("refined_mid_cluster", "", colnames(cell_annot_matrix))
 
-#Get the pseudobulk counts
+#Get the pseudobulk counts, matrix multiplication
 start = Sys.time()
 pseudobulk_counts = assay(multiome_sce, 'counts') %*% cell_annot_matrix
 Sys.time() - start
@@ -115,7 +116,7 @@ head(pseudobulk_counts)
 gene_subset = c('MIR1302-2HG','FAM138A','OR4F5','AL627309.1','AL627309.3', 'AL627309.2')
 gene_index = rownames(multiome_sce) %in% gene_subset
 
-#LHb.4 cell-type
+#LHb.4 cell-type, 10th annotation
 cell_subset = colnames(pseudobulk_counts)[10]
 cell_index = multiome_sce$refined_mid_cluster == cell_subset
 
