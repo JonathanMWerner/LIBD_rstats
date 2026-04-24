@@ -144,6 +144,19 @@ pseudobulk_counts = assay(multiome_sce, 'counts') %*% cell_annot_matrix
 Sys.time() - start
 
 #Time difference of 0.4491587 secs
+#0.7675793 secs
+
+
+#Condensed for example code snapshot
+
+#Get one-hot cell b annotation matrix
+cell_annot_matrix <- Matrix::sparse.model.matrix(~ 0 + refined_cluster_ann, data = colData(multiome_sce))
+#Fix some colnames
+colnames(cell_annot_matrix) <- gsub("refined_cluster_ann", "", colnames(cell_annot_matrix))
+#Matrix multiplication to get the pseudobulk counts
+pseudobulk_counts = assay(multiome_sce, 'counts') %*% cell_annot_matrix
+
+
 
 
 #
